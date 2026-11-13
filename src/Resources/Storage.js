@@ -8,6 +8,7 @@ import isNull from 'licia/isNull'
 import trim from 'licia/trim'
 import copy from 'licia/copy'
 import emitter from '../lib/emitter'
+import { openEditor, getEditorContainer } from '../lib/editorModal'
 import { safeStorage, classPrefix as c } from '../lib/util'
 
 export default class Storage {
@@ -18,6 +19,9 @@ export default class Storage {
     this._resources = resources
     this._selectedItem = null
     this._storeData = []
+    // Original value of every key seen since the panel was opened. Kept across
+    // refreshes so "Restore" always writes back the value from before editing.
+    this._originalData = {}
 
     this._initTpl()
     this._dataGrid = new LunaDataGrid(this._$dataGrid.get(0), {
@@ -80,6 +84,10 @@ export default class Storage {
         if (startWith(key, 'eruda') || key === 'active-eruda') return
       }
 
+      if (!Object.prototype.hasOwnProperty.call(this._originalData, key)) {
+        this._originalData[key] = val
+      }
+
       storeData.push({
         key: key,
         val: truncate(val, 200),
@@ -91,16 +99,22 @@ export default class Storage {
   _updateButtons() {
     const $container = this._$container
     const $showDetail = $container.find(c('.show-detail'))
+    const $editStorage = $container.find(c('.edit-storage'))
+    const $restoreStorage = $container.find(c('.restore-storage'))
     const $deleteStorage = $container.find(c('.delete-storage'))
     const $copyStorage = $container.find(c('.copy-storage'))
     const btnDisabled = c('btn-disabled')
 
     $showDetail.addClass(btnDisabled)
+    $editStorage.addClass(btnDisabled)
+    $restoreStorage.addClass(btnDisabled)
     $deleteStorage.addClass(btnDisabled)
     $copyStorage.addClass(btnDisabled)
 
     if (this._selectedItem) {
       $showDetail.rmClass(btnDisabled)
+      $editStorage.rmClass(btnDisabled)
+      $restoreStorage.rmClass(btnDisabled)
       $deleteStorage.rmClass(btnDisabled)
       $copyStorage.rmClass(btnDisabled)
     }
@@ -114,6 +128,12 @@ export default class Storage {
       ${type === 'local' ? 'Local' : 'Session'} Storage
       <div class="btn refresh-storage">
         <span class="icon icon-refresh"></span>
+      </div>
+      <div class="btn restore-storage btn-disabled" title="Restore original value">
+        <span class="icon icon-reset"></span>
+      </div>
+      <div class="btn edit-storage btn-disabled" title="Edit value">
+        <span class="icon icon-select"></span>
       </div>
       <div class="btn show-detail btn-disabled">
         <span class="icon icon-eye"></span>
@@ -143,6 +163,42 @@ export default class Storage {
       ? localStorage.getItem(key)
       : sessionStorage.getItem(key)
   }
+  _setVal(key, val) {
+    if (this._type === 'local') {
+      localStorage.setItem(key, val)
+    } else {
+      sessionStorage.setItem(key, val)
+    }
+  }
+  _openEditor() {
+    const key = this._selectedItem
+    if (!key) return
+
+    const devtools = this._devtools
+    openEditor({
+      container: getEditorContainer(devtools),
+      title: 'Edit ' + key,
+      value: this._getVal(key) || '',
+      saveText: 'Save',
+      hint: 'Edit the value, then press Save or Ctrl/Cmd + Enter.',
+      quickFns: [],
+      format: 'json',
+      onSave: (val) => {
+        this._setVal(key, val)
+        devtools.notify('Saved', { icon: 'success' })
+        this.refresh()
+      },
+    })
+  }
+  _restoreOriginal() {
+    const key = this._selectedItem
+    if (!key || !Object.prototype.hasOwnProperty.call(this._originalData, key))
+      return
+
+    this._setVal(key, this._originalData[key])
+    this._devtools.notify('Restored', { icon: 'success' })
+    this.refresh()
+  }
   _updateGridHeight = (scale) => {
     this._dataGrid.setOption({
       minHeight: 60 * scale,
@@ -168,6 +224,8 @@ export default class Storage {
         })
         this.refresh()
       })
+      .on('click', c('.edit-storage'), () => this._openEditor())
+      .on('click', c('.restore-storage'), () => this._restoreOriginal())
       .on('click', c('.show-detail'), () => {
         const key = this._selectedItem
         const val = this._getVal(key)
