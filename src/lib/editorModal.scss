@@ -9,27 +9,28 @@
   margin-bottom: 8px;
   user-select: none;
 }
-.editor-chips {
-  display: flex;
-  flex-wrap: wrap;
+.editor-select {
+  display: block;
+  width: 100%;
+  height: 34px;
   margin-bottom: 10px;
-  user-select: none;
-}
-.editor-chip {
-  margin: 0 6px 6px 0;
-  padding: 6px 10px;
-  min-height: 32px;
+  padding: 0 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--darker-background);
-  color: var(--primary);
-  font-family: monospace;
-  font-size: 12px;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 14px;
   cursor: pointer;
-  &:active {
-    background: var(--highlight);
-    color: var(--select-foreground);
+  box-sizing: border-box;
+  user-select: none;
+  &:focus {
+    border-color: var(--accent);
   }
+}
+.editor-select-option {
+  color: var(--foreground);
+  background: var(--background);
 }
 .editor-textarea {
   display: block;

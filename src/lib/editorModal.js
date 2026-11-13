@@ -39,7 +39,8 @@ let host = null
 let modal = null
 let content = null
 let textarea = null
-let chips = null
+let selectEl = null
+let quickFnList = []
 let hintEl = null
 let saveBtn = null
 let onSave = null
@@ -204,7 +205,12 @@ function ensure(container) {
 
   content = hc('div', 'editor-modal')
   hintEl = hc('div', 'editor-hint')
-  chips = hc('div', 'editor-chips')
+  selectEl = hc('select', 'editor-select')
+  selectEl.addEventListener('change', () => {
+    const fn = quickFnList[selectEl.value]
+    if (fn) insertQuickFn(fn)
+    selectEl.value = ''
+  })
   textarea = hc('textarea', 'editor-textarea')
   textarea.setAttribute('spellcheck', 'false')
   textarea.setAttribute('autocapitalize', 'off')
@@ -212,7 +218,7 @@ function ensure(container) {
   textarea.setAttribute('autocorrect', 'off')
 
   content.appendChild(hintEl)
-  content.appendChild(chips)
+  content.appendChild(selectEl)
   content.appendChild(textarea)
 
   const cancelBtn = hc('button', 'editor-btn', 'editor-btn-cancel')
@@ -286,15 +292,24 @@ export function openEditor({
   hintEl.style.display = hint ? '' : 'none'
   saveBtn.textContent = saveText
 
-  chips.textContent = ''
-  each(quickFns, (fn) => {
-    const chip = hc('button', 'editor-chip')
-    chip.type = 'button'
-    chip.textContent = fn.label
-    chip.addEventListener('click', () => insertQuickFn(fn))
-    chips.appendChild(chip)
-  })
-  chips.style.display = quickFns.length ? '' : 'none'
+  selectEl.textContent = ''
+  quickFnList = []
+  if (quickFns.length) {
+    const placeholder = hc('option', 'editor-select-option')
+    placeholder.value = ''
+    placeholder.textContent = 'Insert helper…'
+    placeholder.disabled = true
+    placeholder.selected = true
+    selectEl.appendChild(placeholder)
+    each(quickFns, (fn, i) => {
+      const opt = hc('option', 'editor-select-option')
+      opt.value = String(i)
+      opt.textContent = fn.label
+      selectEl.appendChild(opt)
+      quickFnList.push(fn)
+    })
+  }
+  selectEl.style.display = quickFns.length ? '' : 'none'
 
   modal.setOption('title', title)
   modal.setOption('width', Math.min(720, window.innerWidth - 32))
