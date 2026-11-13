@@ -28,6 +28,7 @@ import nextTick from 'licia/nextTick'
 import isEqual from 'licia/isEqual'
 import extend from 'licia/extend'
 import evalCss from './lib/evalCss'
+import cascadiaFont from './lib/cascadiaFont'
 import chobitsu from './lib/chobitsu'
 
 export default {
@@ -198,6 +199,12 @@ export default {
     container.id = 'eruda'
     container.style.all = 'initial'
     this._container = container
+
+    // @font-face must be declared in document.head (it does not work inside a
+    // shadow root), and a face in the outer document applies to shadow content
+    // too. Inject it once, regardless of the useShadowDom option. No `px`,
+    // `_` or `var(--x)` in here, so evalCss's resetStyle leaves it untouched.
+    evalCss(cascadiaFont, document.head)
 
     let shadowRoot
     let el

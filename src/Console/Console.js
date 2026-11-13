@@ -17,6 +17,7 @@ import evalCss from '../lib/evalCss'
 import Settings from '../Settings/Settings'
 import LunaConsole from 'luna-console'
 import LunaModal from 'luna-modal'
+import { openEditor, getEditorContainer, JS_QUICK_FNS } from '../lib/editorModal'
 import { classPrefix as c } from '../lib/util'
 
 uncaught.start()
@@ -29,6 +30,8 @@ export default class Console extends Tool {
 
     this.name = name
     this._selectedLog = null
+    // Remember the code between editor sessions so Cancel does not lose it.
+    this._jsInput = ''
   }
   init($el, container) {
     super.init($el)
@@ -152,26 +155,18 @@ export default class Console extends Tool {
       </div>
       <div class="logs-container"></div>
       <div class="js-input">
-        <div class="buttons">
-          <div class="button cancel">Cancel</div>
-          <div class="button execute">Execute</div>
-        </div>
         <span class="icon-right"></span>
-        <textarea></textarea>
+        <span class="input-placeholder">Tap to enter JavaScript</span>
       </div>
     `)
     )
 
     const _$inputContainer = $el.find(c('.js-input'))
-    const _$input = _$inputContainer.find('textarea')
-    const _$inputBtns = _$inputContainer.find(c('.buttons'))
 
     extend(this, {
       _$control: $el.find(c('.control')),
       _$logs: $el.find(c('.logs-container')),
       _$inputContainer,
-      _$input,
-      _$inputBtns,
       _$filterText: $el.find(c('.filter-text')),
     })
   }
@@ -224,9 +219,8 @@ export default class Console extends Tool {
   }
   _bindEvent() {
     const container = this._container
-    const $input = this._$input
-    const $inputBtns = this._$inputBtns
     const $control = this._$control
+    const $inputContainer = this._$inputContainer
 
     const logger = this._logger
     const config = this.config
@@ -251,18 +245,9 @@ export default class Console extends Tool {
         container.notify('Copied', { icon: 'success' })
       })
 
-    $inputBtns
-      .on('click', c('.cancel'), () => this._hideInput())
-      .on('click', c('.execute'), () => {
-        const jsInput = $input.val().trim()
-        if (jsInput === '') return
-
-        logger.evaluate(jsInput)
-        $input.val('').get(0).blur()
-        this._hideInput()
-      })
-
-    $input.on('focusin', () => this._showInput())
+    // The bottom bar is now only a trigger: editing happens in a modal with a
+    // larger textarea, quick function chips and formatting support.
+    $inputContainer.on('click', () => this._showInput())
 
     logger.on('insert', (log) => {
       const autoShow = log.type === 'error' && config.get('displayIfErr')
@@ -282,13 +267,28 @@ export default class Console extends Tool {
 
     container.on('show', this._handleShow)
   }
-  _hideInput() {
-    this._$inputContainer.rmClass(c('active'))
-    this._$inputBtns.css('display', 'none')
-  }
   _showInput() {
-    this._$inputContainer.addClass(c('active'))
-    this._$inputBtns.css('display', 'flex')
+    const container = this._container
+
+    openEditor({
+      container: getEditorContainer(container),
+      title: 'JavaScript',
+      value: this._jsInput,
+      placeholder: 'Enter JavaScript, then press Run',
+      saveText: 'Run',
+      hint: 'Tap a helper to insert it. Format = pretty print. Ctrl/Cmd + Enter = Run.',
+      quickFns: JS_QUICK_FNS,
+      format: 'code',
+      onSave: (val) => {
+        const jsInput = val.trim()
+        if (jsInput === '') return
+        this._jsInput = ''
+        this._logger.evaluate(jsInput)
+      },
+      onCancel: (val) => {
+        this._jsInput = val
+      },
+    })
   }
   _rmCfg() {
     const cfg = this.config

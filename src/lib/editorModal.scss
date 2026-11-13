@@ -1,0 +1,90 @@
+.editor-modal {
+  display: flex;
+  flex-direction: column;
+}
+.editor-hint {
+  color: var(--foreground);
+  opacity: 0.65;
+  font-size: 12px;
+  margin-bottom: 8px;
+  user-select: none;
+}
+.editor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  user-select: none;
+}
+.editor-chip {
+  margin: 0 6px 6px 0;
+  padding: 6px 10px;
+  min-height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--darker-background);
+  color: var(--primary);
+  font-family: monospace;
+  font-size: 12px;
+  cursor: pointer;
+  &:active {
+    background: var(--highlight);
+    color: var(--select-foreground);
+  }
+}
+.editor-textarea {
+  display: block;
+  width: 100%;
+  min-height: 220px;
+  height: 42vh;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+  resize: vertical;
+  overflow: auto;
+  box-sizing: border-box;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New',
+    monospace;
+  font-size: 17px;
+  line-height: 1.6;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  &:focus {
+    border-color: var(--accent);
+  }
+}
+.editor-footer {
+  display: flex;
+  justify-content: flex-end;
+  user-select: none;
+}
+.editor-btn {
+  margin-left: 8px;
+  min-width: 72px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--darker-background);
+  color: var(--foreground);
+  font-size: 14px;
+  cursor: pointer;
+  &:active {
+    background: var(--highlight);
+    color: var(--select-foreground);
+  }
+}
+.editor-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--background);
+  &:active {
+    background: var(--highlight);
+    color: var(--select-foreground);
+  }
+}
