@@ -44,15 +44,23 @@
   [class^='eruda-icon-'],
   [class*=' icon-'] {
     display: inline-block;
-    padding: 10px;
-    font-size: $font-size-l;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    line-height: 40px;
+    text-align: center;
+    font-size: 18px;
     position: absolute;
     top: 0;
+    border-radius: 4px;
     cursor: pointer;
-    transition: color $anim-duration;
+    transition: color $anim-duration, background-color $anim-duration;
     &:active,
     &.active {
       color: var(--accent);
+    }
+    &:active {
+      background: var(--highlight);
     }
   }
 }
@@ -66,26 +74,37 @@
 }
 
 @mixin right-btn {
+  @include clear-float();
   .btn {
     margin-left: 5px;
     float: right;
     color: var(--primary);
-    width: 18px;
-    height: 18px;
-    font-size: $font-size-l;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 18px;
     font-weight: normal;
     cursor: pointer;
-    transition: color $anim-duration;
+    transition: color $anim-duration, background-color $anim-duration;
+    [class^='eruda-icon-'],
+    [class*=' icon-'] {
+      font-size: 18px;
+      vertical-align: middle;
+    }
     &.filter-text {
       width: auto;
       max-width: 80px;
       font-size: $font-size;
+      line-height: 32px;
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
     }
     &:active {
       color: var(--accent);
+      background: var(--highlight);
     }
     &.btn-disabled {
       color: inherit !important;

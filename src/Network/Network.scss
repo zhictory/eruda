@@ -14,16 +14,16 @@
       font-size: $font-size;
     }
     .icon-clear {
-      left: 23px;
+      left: 40px;
     }
     .icon-eye {
       right: 0;
     }
     .icon-copy {
-      right: 23px;
+      right: 40px;
     }
     .icon-filter {
-      right: 46px;
+      right: 80px;
     }
     .filter-text {
       white-space: nowrap;
@@ -31,7 +31,7 @@
       line-height: 20px;
       max-width: 80px;
       overflow: hidden;
-      right: 88px;
+      right: 120px;
       font-size: $font-size;
       text-overflow: ellipsis;
     }
@@ -78,7 +78,7 @@
         left: 0;
       }
       .icon-delete {
-        left: 0;
+        left: 40px;
         display: none;
       }
       .icon-copy {
@@ -150,10 +150,10 @@
           right: 0;
         }
         .icon-filter {
-          right: 23px;
+          right: 40px;
         }
         .filter-text {
-          right: 55px;
+          right: 80px;
         }
       }
     }
