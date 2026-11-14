@@ -6,6 +6,7 @@ import { classPrefix as c } from './util'
 
 // Marker is removed on insert and the caret is placed where it was.
 const MARKER = '¦'
+const DRAWER_CLASS = c('editor-drawer')
 
 // Only helpers that are available in the page's global scope (logger.evaluate
 // uses eval in that scope). DevTools-only shortcuts such as $0 / copy() are
@@ -200,8 +201,11 @@ function ensure(container) {
 
   evalCss(require('./editorModal.scss'))
 
-  host = h('div' + c('.editor-drawer') + c('.luna-modal'))
-  host.style.display = 'none'
+  // LunaModal's Component constructor adds the real `luna-modal` class to the
+  // host itself. Do NOT set an inline `display: none` here: show() only removes
+  // the `luna-modal-hidden` class, so an inline style would never be cleared
+  // and the editor would stay invisible.
+  host = h('div')
   container.appendChild(host)
 
   content = hc('div', 'editor-modal')
@@ -248,7 +252,7 @@ function ensure(container) {
     title: '',
     content,
     footer,
-    width: Math.min(720, window.innerWidth - 32),
+    width: window.innerWidth,
     showClose: false,
   })
 
@@ -279,10 +283,15 @@ export function openEditor({
   hint = '',
   quickFns = [],
   format = 'json',
+  drawer = false,
   onSave: save,
   onCancel: cancel,
 } = {}) {
   ensure(container)
+
+  // The real `luna-modal` class is added by LunaModal's constructor; toggling
+  // our prefixed drawer class on the same host turns it into a top drawer.
+  host.classList.toggle(DRAWER_CLASS, drawer)
 
   formatMode = format
   onSave = save || null
@@ -313,7 +322,10 @@ export function openEditor({
   selectEl.style.display = quickFns.length ? '' : 'none'
 
   modal.setOption('title', title)
-  modal.setOption('width', Math.min(720, window.innerWidth - 32))
+  modal.setOption(
+    'width',
+    drawer ? window.innerWidth : Math.min(720, window.innerWidth - 32)
+  )
   modal.show()
 
   textarea.focus()

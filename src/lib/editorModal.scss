@@ -1,12 +1,26 @@
-.editor-drawer {
+// The real `luna-modal` class is added by LunaModal's constructor on the host
+// itself, so a descendant selector would never match. Use a compound selector.
+// Only the console editor is a top drawer; storage stays a centred modal.
+.luna-modal.editor-drawer {
   align-items: flex-start;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: none;
   .luna-modal-body {
-    width: 100%;
+    // render() sets an inline width, so this needs !important to win.
+    width: 100% !important;
     max-height: 60%;
     margin-top: 0;
     border-radius: 0 0 8px 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+    animation: editor-drawer-in 0.25s ease-out;
+  }
+}
+@keyframes editor-drawer-in {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
   }
 }
 .editor-modal {

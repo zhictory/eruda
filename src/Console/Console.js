@@ -279,6 +279,7 @@ export default class Console extends Tool {
       hint: 'Tap a helper to insert it. Format = pretty print. Ctrl/Cmd + Enter = Run.',
       quickFns: JS_QUICK_FNS,
       format: 'code',
+      drawer: true,
       onSave: (val) => {
         const jsInput = val.trim()
         if (jsInput === '') return
