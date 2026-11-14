@@ -38,6 +38,11 @@
     line-height: 18px;
     color: var(--primary);
     background: var(--darker-background);
+  }
+  .title-btns {
+    padding: 4px $padding;
+    background: var(--darker-background);
+    border-bottom: 1px solid var(--border);
     @include right-btn();
   }
   .link-list {

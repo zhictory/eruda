@@ -67,6 +67,8 @@ export default class Cookie {
     $container.html(
       c(`<h2 class="title">
       Cookie
+    </h2>
+    <div class="title-btns">
       <div class="btn refresh-cookie">
         <span class="icon-refresh"></span>
       </div>
@@ -86,7 +88,7 @@ export default class Cookie {
         <span class="icon-filter"></span>
       </div>
       <div class="btn filter-text"></div>
-    </h2>
+    </div>
     <div class="data-grid"></div>`)
     )
 

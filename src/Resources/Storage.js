@@ -126,6 +126,8 @@ export default class Storage {
     $container.html(
       c(`<h2 class="title">
       ${type === 'local' ? 'Local' : 'Session'} Storage
+    </h2>
+    <div class="title-btns">
       <div class="btn refresh-storage">
         <span class="icon icon-refresh"></span>
       </div>
@@ -151,7 +153,7 @@ export default class Storage {
         <span class="icon icon-filter"></span>
       </div>
       <div class="btn filter-text"></div>
-    </h2>
+    </div>
     <div class="data-grid"></div>`)
     )
 
