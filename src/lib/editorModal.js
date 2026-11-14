@@ -200,7 +200,8 @@ function ensure(container) {
 
   evalCss(require('./editorModal.scss'))
 
-  host = h('div' + c('.editor-drawer'))
+  host = h('div' + c('.editor-drawer') + c('.luna-modal'))
+  host.style.display = 'none'
   container.appendChild(host)
 
   content = hc('div', 'editor-modal')
