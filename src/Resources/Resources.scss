@@ -27,9 +27,17 @@
     &.session-storage,
     &.cookie {
       border: none;
+      // Keep the name as a faint caption that sits outside the table box, so
+      // the toolbar below contains nothing but the panel buttons.
       .title {
-        border: 1px solid var(--border);
-        border-bottom: none;
+        padding: 8px $padding 2px;
+        font-size: $font-size-s;
+        font-weight: normal;
+        line-height: 1;
+        color: var(--foreground);
+        opacity: 0.45;
+        background: none;
+        border: none;
       }
     }
   }
@@ -42,8 +50,15 @@
   .title-btns {
     padding: 4px $padding;
     background: var(--darker-background);
-    border-bottom: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-bottom: none;
     @include right-btn();
+    // The toolbar holds only the panel buttons, left aligned in DOM order.
+    .btn {
+      float: left;
+      margin-left: 0;
+      margin-right: 4px;
+    }
   }
   .link-list {
     font-size: $font-size-s;
