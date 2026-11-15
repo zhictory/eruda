@@ -5,47 +5,19 @@
   @include overflow-auto(y);
   padding: 10px;
   font-size: 14px;
+  // Every section renders the same faint caption above a button-only toolbar,
+  // which is the top edge of the boxed content below it.
   .section {
     margin-bottom: 10px;
     overflow: hidden;
-    border: 1px solid var(--border);
-    &.warn {
-      border: 1px solid var(--console-warn-border);
-      .title {
-        background: var(--console-warn-background);
-        color: var(--console-warn-foreground);
-      }
-    }
-    &.danger {
-      border: 1px solid var(--console-error-border);
-      .title {
-        background: var(--console-error-background);
-        color: var(--console-error-foreground);
-      }
-    }
-    &.local-storage,
-    &.session-storage,
-    &.cookie {
-      border: none;
-      // Keep the name as a faint caption that sits outside the table box, so
-      // the toolbar below contains nothing but the panel buttons.
-      .title {
-        padding: 8px $padding 2px;
-        font-size: $font-size-s;
-        font-weight: normal;
-        line-height: 1;
-        color: var(--foreground);
-        opacity: 0.45;
-        background: none;
-        border: none;
-      }
-    }
   }
   .title {
-    padding: $padding;
-    line-height: 18px;
-    color: var(--primary);
-    background: var(--darker-background);
+    padding: 8px $padding 2px;
+    font-size: $font-size-s;
+    font-weight: normal;
+    line-height: 1;
+    color: var(--foreground);
+    opacity: 0.45;
   }
   .title-btns {
     padding: 4px $padding;
@@ -59,6 +31,23 @@
       margin-left: 0;
       margin-right: 4px;
     }
+  }
+  // Warn / danger states recolour the box edge (kept from the original theme).
+  .section.warn .title-btns,
+  .section.warn .link-list,
+  .section.warn .image-list,
+  .section.warn .data-grid {
+    border-color: var(--console-warn-border);
+  }
+  .section.danger .title-btns,
+  .section.danger .link-list,
+  .section.danger .image-list,
+  .section.danger .data-grid {
+    border-color: var(--console-error-border);
+  }
+  .link-list,
+  .image-list {
+    border: 1px solid var(--border);
   }
   .link-list {
     font-size: $font-size-s;

@@ -92,12 +92,12 @@ export default class Resources extends Tool {
       }).join('')
     }
 
-    const scriptHtml = `<h2 class="${c('title')}">
-      Script
+    const scriptHtml = `<h2 class="${c('title')}">Script</h2>
+    <div class="${c('title-btns')}">
       <div class="${c('btn refresh-script')}">
         <span class="${c('icon-refresh')}"></span>
       </div>
-    </h2>
+    </div>
     <ul class="${c('link-list')}">
       ${scriptDataHtml}
     </ul>`
@@ -130,12 +130,12 @@ export default class Resources extends Tool {
       }).join('')
     }
 
-    const stylesheetHtml = `<h2 class="${c('title')}">
-      Stylesheet
+    const stylesheetHtml = `<h2 class="${c('title')}">Stylesheet</h2>
+    <div class="${c('title-btns')}">
       <div class="${c('btn refresh-stylesheet')}">
         <span class="${c('icon-refresh')}"></span>
       </div>
-    </h2>
+    </div>
     <ul class="${c('link-list')}">
       ${stylesheetDataHtml}
     </ul>`
@@ -167,12 +167,12 @@ export default class Resources extends Tool {
         )}">${iframe}</a></li>`
       }).join('')
     }
-    const iframeHtml = `<h2 class="${c('title')}">
-      Iframe
+    const iframeHtml = `<h2 class="${c('title')}">Iframe</h2>
+    <div class="${c('title-btns')}">
       <div class="${c('btn refresh-iframe')}">
         <span class="${c('icon-refresh')}"></span>
       </div>
-    </h2>
+    </div>
     <ul class="${c('link-list')}">
       ${iframeDataHtml}
     </ul>`
@@ -238,12 +238,12 @@ export default class Resources extends Tool {
       }).join('')
     }
 
-    const imageHtml = `<h2 class="${c('title')}">
-      Image
+    const imageHtml = `<h2 class="${c('title')}">Image</h2>
+    <div class="${c('title-btns')}">
       <div class="${c('btn refresh-image')}">
         <span class="${c('icon-refresh')}"></span>
       </div>
-    </h2>
+    </div>
     <ul class="${c('image-list')}">
       ${imageDataHtml}
     </ul>`
