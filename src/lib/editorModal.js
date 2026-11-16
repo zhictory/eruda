@@ -41,7 +41,10 @@ let host = null
 let modal = null
 let content = null
 let textarea = null
-let selectEl = null
+let selectBox = null
+let selectTrigger = null
+let selectMenu = null
+let selectOpen = false
 let quickFnList = []
 let hintEl = null
 let saveBtn = null
@@ -51,6 +54,16 @@ let formatMode = 'json'
 
 function hc(tag, ...classes) {
   return h(tag + classes.map((cls) => c('.' + cls)).join(''))
+}
+
+function closeSelectMenu() {
+  selectOpen = false
+  if (selectMenu) selectMenu.classList.remove(c('editor-select-menu-open'))
+}
+
+function toggleSelectMenu() {
+  selectOpen = !selectOpen
+  selectMenu.classList.toggle(c('editor-select-menu-open'), selectOpen)
 }
 
 function insert(text) {
@@ -214,12 +227,35 @@ function ensure(container) {
 
   content = hc('div', 'editor-modal')
   hintEl = hc('div', 'editor-hint')
-  selectEl = hc('select', 'editor-select')
-  selectEl.addEventListener('change', () => {
-    const fn = quickFnList[selectEl.value]
-    if (fn) insertQuickFn(fn)
-    selectEl.value = ''
+
+  // A native <select> renders its option list with the OS widget on iOS
+  // WKWebView, where font-size / color / spacing on <option> are ignored.
+  // Build a plain DOM dropdown instead so the helper names are real elements
+  // whose typography and spacing we fully control with CSS.
+  selectBox = hc('div', 'editor-select')
+  selectTrigger = hc('div', 'editor-select-trigger')
+  selectTrigger.textContent = 'Insert helper…'
+  selectTrigger.setAttribute('role', 'button')
+  selectTrigger.setAttribute('tabindex', '0')
+  selectMenu = hc('div', 'editor-select-menu')
+  selectTrigger.addEventListener('click', (e) => {
+    e.stopPropagation()
+    toggleSelectMenu()
   })
+  selectTrigger.addEventListener('keydown', (e) => {
+    if (
+      e.key === 'Enter' ||
+      e.key === ' ' ||
+      e.key === 'ArrowDown' ||
+      e.key === 'ArrowUp'
+    ) {
+      e.preventDefault()
+      toggleSelectMenu()
+    }
+  })
+  selectBox.appendChild(selectTrigger)
+  selectBox.appendChild(selectMenu)
+
   textarea = hc('textarea', 'editor-textarea')
   textarea.setAttribute('spellcheck', 'false')
   textarea.setAttribute('autocapitalize', 'off')
@@ -227,7 +263,7 @@ function ensure(container) {
   textarea.setAttribute('autocorrect', 'off')
 
   content.appendChild(hintEl)
-  content.appendChild(selectEl)
+  content.appendChild(selectBox)
   content.appendChild(textarea)
 
   const cancelBtn = hc('button', 'editor-btn', 'editor-btn-cancel')
@@ -273,8 +309,17 @@ function ensure(container) {
   host.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.preventDefault()
+      if (selectOpen) {
+        closeSelectMenu()
+        return
+      }
       hide(false, true)
     }
+  })
+
+  // Tapping outside the dropdown closes it (the modal content, footer, etc.).
+  host.addEventListener('click', (e) => {
+    if (selectOpen && !selectBox.contains(e.target)) closeSelectMenu()
   })
 }
 
@@ -306,24 +351,32 @@ export function openEditor({
   hintEl.style.display = hint ? '' : 'none'
   saveBtn.textContent = saveText
 
-  selectEl.textContent = ''
+  selectMenu.textContent = ''
   quickFnList = []
+  closeSelectMenu()
   if (quickFns.length) {
-    const placeholder = hc('option', 'editor-select-option')
-    placeholder.value = ''
-    placeholder.textContent = 'Insert helper…'
-    placeholder.disabled = true
-    placeholder.selected = true
-    selectEl.appendChild(placeholder)
-    each(quickFns, (fn, i) => {
-      const opt = hc('option', 'editor-select-option')
-      opt.value = String(i)
+    each(quickFns, (fn) => {
+      const opt = hc('div', 'editor-select-option')
       opt.textContent = fn.label
-      selectEl.appendChild(opt)
+      opt.setAttribute('role', 'option')
+      opt.setAttribute('tabindex', '0')
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation()
+        insertQuickFn(fn)
+        closeSelectMenu()
+      })
+      opt.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          insertQuickFn(fn)
+          closeSelectMenu()
+        }
+      })
+      selectMenu.appendChild(opt)
       quickFnList.push(fn)
     })
   }
-  selectEl.style.display = quickFns.length ? '' : 'none'
+  selectBox.style.display = quickFns.length ? '' : 'none'
 
   modal.setOption('title', title)
   modal.setOption(

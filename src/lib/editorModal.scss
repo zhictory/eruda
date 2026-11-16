@@ -46,34 +46,75 @@
   margin-bottom: 6px;
   user-select: none;
 }
+// A plain DOM dropdown rather than a native <select>: iOS WKWebView renders a
+// native option list with the OS widget, where CSS font-size / color / spacing
+// on <option> are ignored. These are real elements, so the typography and the
+// gap to the textarea apply everywhere.
 .editor-select {
-  display: block;
+  position: relative;
   width: 100%;
-  height: 30px;
-  // Keep a clear gap between the helper dropdown and the textarea below it.
+  // A clear gap between the helper dropdown and the textarea below it.
   margin-bottom: 12px;
+  font-family: inherit;
+  // Match eruda's body text size ($font-size: 14px), not the tiny label size.
+  font-size: 14px;
+  user-select: none;
+}
+.editor-select-trigger {
   padding: 0 8px;
+  height: 30px;
+  line-height: 30px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--darker-background);
   color: var(--foreground);
-  font-family: inherit;
-  // Match eruda's body text size ($font-size: 14px) instead of the tiny
-  // auxiliary label size, so the helper names are as readable as normal text.
-  font-size: 14px;
   cursor: pointer;
   box-sizing: border-box;
-  user-select: none;
-  &:focus {
+  // Small caret drawn with a border so no extra asset / font is needed.
+  &::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 11px;
+    width: 6px;
+    height: 6px;
+    border-right: 1px solid var(--foreground);
+    border-bottom: 1px solid var(--foreground);
+    transform: rotate(45deg);
+    pointer-events: none;
+  }
+  &:focus,
+  &:active {
     border-color: var(--accent);
   }
 }
-.editor-select-option {
-  color: var(--foreground);
+.editor-select-menu {
+  display: none;
+  // In-flow (not absolute) so it is never clipped by the modal's scroll box
+  // and needs no z-index / overflow workaround on iOS WKWebView.
+  width: 100%;
+  max-height: 40vh;
+  overflow-y: auto;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
   background: var(--background);
-  // Set explicitly too: some WebKit builds do not inherit the select's
-  // font-size onto the native option list.
+  box-sizing: border-box;
+}
+.editor-select-menu-open {
+  display: block;
+}
+.editor-select-option {
+  // Real elements: font-size and padding are honoured even on iOS webview.
+  padding: 8px 10px;
+  color: var(--foreground);
   font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+  &:active {
+    background: var(--highlight);
+    color: var(--select-foreground);
+  }
 }
 .editor-textarea {
   display: block;
