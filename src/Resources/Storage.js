@@ -185,6 +185,7 @@ export default class Storage {
       hint: 'Edit the value, then press Save or Ctrl/Cmd + Enter.',
       quickFns: [],
       format: 'json',
+      drawer: true,
       onSave: (val) => {
         this._setVal(key, val)
         devtools.notify('Saved', { icon: 'success' })
