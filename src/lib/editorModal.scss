@@ -50,14 +50,17 @@
   display: block;
   width: 100%;
   height: 30px;
-  margin-bottom: 8px;
+  // Keep a clear gap between the helper dropdown and the textarea below it.
+  margin-bottom: 12px;
   padding: 0 8px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--darker-background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: 12px;
+  // Match eruda's body text size ($font-size: 14px) instead of the tiny
+  // auxiliary label size, so the helper names are as readable as normal text.
+  font-size: 14px;
   cursor: pointer;
   box-sizing: border-box;
   user-select: none;
@@ -68,6 +71,9 @@
 .editor-select-option {
   color: var(--foreground);
   background: var(--background);
+  // Set explicitly too: some WebKit builds do not inherit the select's
+  // font-size onto the native option list.
+  font-size: 14px;
 }
 .editor-textarea {
   display: block;
