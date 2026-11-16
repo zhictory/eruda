@@ -7,6 +7,7 @@ import { classPrefix as c } from './util'
 // Marker is removed on insert and the caret is placed where it was.
 const MARKER = '¦'
 const DRAWER_CLASS = c('editor-drawer')
+const DRAWER_OPEN_CLASS = c('editor-drawer-open')
 
 // Only helpers that are available in the page's global scope (logger.evaluate
 // uses eval in that scope). DevTools-only shortcuts such as $0 / copy() are
@@ -182,6 +183,9 @@ function beautify(src) {
 function hide(save, cancelled) {
   if (!modal) return
   const val = textarea.value
+  // Snap back to the closed position so the next open animates in from the
+  // top again (the host is reused between opens).
+  host.classList.remove(DRAWER_OPEN_CLASS)
   modal.hide()
   if (save && onSave) {
     const fn = onSave
@@ -326,7 +330,28 @@ export function openEditor({
     'width',
     drawer ? window.innerWidth : Math.min(720, window.innerWidth - 32)
   )
+
+  // Reset to the closed position every time. The host is shared between the
+  // console drawer and the storage modal, so without this the drawer would
+  // already be open after being shown once and no transition would fire.
+  host.classList.remove(DRAWER_OPEN_CLASS)
   modal.show()
+
+  if (drawer) {
+    // Flush the closed transform to layout before adding the open class, so
+    // WebKit on iOS actually animates the change instead of jumping straight
+    // to the end state (keyframes in a shadow root were unreliable there).
+    // Reading offsetHeight forces a style/layout recalculation.
+    void host.offsetHeight
+    // A second frame is more reliable than a single forced reflow in WKWebView.
+    requestAnimationFrame(() => {
+      // Guard against the editor being closed (or re-opened as a centred
+      // modal) before this frame runs.
+      if (host.classList.contains(DRAWER_CLASS)) {
+        host.classList.add(DRAWER_OPEN_CLASS)
+      }
+    })
+  }
 
   textarea.focus()
   const pos = textarea.value.length

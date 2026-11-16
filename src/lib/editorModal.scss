@@ -5,6 +5,15 @@
   align-items: flex-start;
   background: rgba(0, 0, 0, 0.35);
   backdrop-filter: none;
+  // iOS WKWebView / Safari draws this fixed overlay under the status bar when
+  // the host page uses viewport-fit=cover. Push the panel below the notch /
+  // status bar. constant() covers iOS 11.0-11.2, env() covers 11.3+. Both
+  // resolve to 0 when there is no inset, so this is a harmless no-op elsewhere
+  // and is deliberately NOT gated on the `.safe-area` class (that class is
+  // detected from the bottom inset and can be missing when only a top inset
+  // exists). No px / `_` / var() in here, so evalCss's resetStyle leaves them.
+  padding-top: constant(safe-area-inset-top);
+  padding-top: env(safe-area-inset-top);
   .luna-modal-body {
     // render() sets an inline width, so this needs !important to win.
     width: 100% !important;
@@ -12,15 +21,18 @@
     margin-top: 0;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-    animation: editor-drawer-in 0.25s ease-out;
+    // A transition, not @keyframes: WebKit on iOS does not reliably run
+    // keyframe animations declared inside a shadow root, nor replay them when
+    // a reused element is shown again. JS adds `editor-drawer-open` only after
+    // flushing this closed state to layout, so the slide-down always fires.
+    // translate3d keeps the animation on the compositor on iOS.
+    transform: translate3d(0, -100%, 0);
+    transition: transform 0.25s ease-out;
   }
-}
-@keyframes editor-drawer-in {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(0);
+  &.editor-drawer-open {
+    .luna-modal-body {
+      transform: translate3d(0, 0, 0);
+    }
   }
 }
 .editor-modal {
