@@ -1,7 +1,7 @@
 @use '../style/variable' as *;
 @use '../style/mixin' as *;
 
-$js-input-height: 30px;
+$js-input-height: 40px;
 
 #console {
   padding-top: 40px;
@@ -62,8 +62,10 @@ $js-input-height: 30px;
     cursor: pointer;
     pointer-events: all;
     display: flex;
-    align-items: center;
-    padding: 0 12px;
+    // Top-align the placeholder instead of vertically centering it, so the
+    // row keeps its comfortable tap height without the text sitting too low.
+    align-items: flex-start;
+    padding: 6px 12px;
     transition: background-color $anim-duration;
     &:active {
       background: var(--highlight);
