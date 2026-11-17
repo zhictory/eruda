@@ -12,7 +12,9 @@
     overflow: hidden;
   }
   .title {
-    padding: 8px $padding 2px;
+    // Flush left with the table below (no horizontal padding), with a small
+    // gap separating the caption from the boxed content.
+    padding: 8px 0 6px;
     font-size: $font-size-s;
     font-weight: normal;
     line-height: 1;
