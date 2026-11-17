@@ -5,6 +5,7 @@ import toStr from 'licia/toStr'
 import isFn from 'licia/isFn'
 import Emitter from 'licia/Emitter'
 import isStr from 'licia/isStr'
+import isErr from 'licia/isErr'
 import isRegExp from 'licia/isRegExp'
 import uncaught from 'licia/uncaught'
 import trim from 'licia/trim'
@@ -123,7 +124,44 @@ export default class Console extends Tool {
     this._logger.renderViewport()
   }
   _handleErr = (err) => {
-    this._logger.error(err)
+    // eruda already captures window.onerror AND unhandledrejection through
+    // licia/uncaught, so we must NOT add our own onerror/try-catch here (that
+    // would double-log). We only normalise the captured value before display:
+    //  1. Cross-origin scripts give an opaque "Script error." with no stack.
+    //  2. Rejection reasons are often not Error objects (string/object/null),
+    //     which otherwise render blank or as [object Object].
+    let log = err
+
+    if (!isErr(err)) {
+      let msg
+      if (isStr(err)) {
+        msg = err
+      } else if (isNull(err)) {
+        msg = 'null'
+      } else {
+        try {
+          msg = JSON.stringify(err)
+        } catch {
+          msg = String(err)
+        }
+      }
+      log = new Error(msg || 'Unhandled rejection')
+    } else if (
+      err.message === 'Script error.' ||
+      err.message === 'Script error'
+    ) {
+      const fixed = new Error(
+        'Script error. (cross-origin script hidden by the browser)\n' +
+          'To see the real message and stack, add crossorigin="anonymous" ' +
+          'to the <script> tag and make the script server send an ' +
+          'Access-Control-Allow-Origin header.'
+      )
+      // Keep whatever location the browser did provide (file:line:col).
+      fixed.stack = err.stack || fixed.stack
+      log = fixed
+    }
+
+    this._logger.error(log)
   }
   _enableJsExecution(enabled) {
     const $el = this._$el
