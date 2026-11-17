@@ -48,6 +48,15 @@ let selectOpen = false
 let quickFnList = []
 let hintEl = null
 let saveBtn = null
+// Recent executed snippets, shown in a right-hand sidebar of the console editor.
+// Kept in memory (so it works even when localStorage is unavailable) and
+// mirrored to localStorage best-effort so it survives reloads.
+let historyKey = ''
+let historyCache = null
+let historyCacheKey = ''
+let historyPanel = null
+let historyList = null
+const HISTORY_MAX = 30
 let onSave = null
 let onCancel = null
 let formatMode = 'json'
@@ -74,6 +83,81 @@ function insert(text) {
   const pos = start + text.length
   textarea.focus()
   textarea.setSelectionRange(pos, pos)
+}
+
+const HISTORY_STORAGE_KEY = 'eruda-js-editor-history'
+
+function getStorage() {
+  try {
+    return window.localStorage
+  } catch {
+    return null
+  }
+}
+
+function loadHistory() {
+  if (historyCacheKey === historyKey && historyCache) return historyCache
+  let list = []
+  const store = getStorage()
+  if (store) {
+    try {
+      const raw = store.getItem(HISTORY_STORAGE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed)) list = parsed
+      }
+    } catch {
+      // Ignore malformed/corrupt stored history.
+    }
+  }
+  historyCache = list
+  historyCacheKey = historyKey
+  return list
+}
+
+function saveHistoryToStore(list) {
+  const store = getStorage()
+  if (!store) return
+  try {
+    store.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list))
+  } catch {
+    // Storage may be full or blocked; history still lives in memory.
+  }
+}
+
+function addHistory(text) {
+  const val = text.trim()
+  if (!val) return
+  const list = loadHistory().filter((item) => item !== val)
+  list.unshift(val)
+  if (list.length > HISTORY_MAX) list.length = HISTORY_MAX
+  historyCache = list
+  historyCacheKey = historyKey
+  saveHistoryToStore(list)
+}
+
+function renderHistory() {
+  if (!historyList) return
+  const list = loadHistory()
+  historyList.textContent = ''
+  if (!list.length) {
+    const empty = hc('div', 'editor-history-empty')
+    empty.textContent = 'No recent code yet'
+    historyList.appendChild(empty)
+    return
+  }
+  each(list, (code) => {
+    const item = hc('div', 'editor-history-item')
+    item.textContent = code.length > 120 ? code.slice(0, 120) + '…' : code
+    item.setAttribute('title', code)
+    item.addEventListener('click', () => {
+      textarea.value = code
+      textarea.focus()
+      const pos = textarea.value.length
+      textarea.setSelectionRange(pos, pos)
+    })
+    historyList.appendChild(item)
+  })
 }
 
 function insertQuickFn(fn) {
@@ -204,6 +288,7 @@ function hide(save, cancelled) {
     const fn = onSave
     onSave = null
     onCancel = null
+    if (historyKey) addHistory(val)
     fn(val)
   } else if (cancelled && onCancel) {
     const fn = onCancel
@@ -262,9 +347,25 @@ function ensure(container) {
   textarea.setAttribute('autocomplete', 'off')
   textarea.setAttribute('autocorrect', 'off')
 
-  content.appendChild(hintEl)
-  content.appendChild(selectBox)
-  content.appendChild(textarea)
+  // A side-by-side row: the editor on the left, a recent-history list on the
+  // right. Only the console drawer shows it; the storage editor keeps a plain
+  // single column (openEditor toggles the panel via EDITOR_HISTORY_CLASS).
+  const mainCol = hc('div', 'editor-main')
+  mainCol.appendChild(hintEl)
+  mainCol.appendChild(selectBox)
+  mainCol.appendChild(textarea)
+
+  historyPanel = hc('div', 'editor-history')
+  const historyTitle = hc('div', 'editor-history-title')
+  historyTitle.textContent = 'Recent'
+  historyList = hc('div', 'editor-history-list')
+  historyPanel.appendChild(historyTitle)
+  historyPanel.appendChild(historyList)
+
+  const row = hc('div', 'editor-row')
+  row.appendChild(mainCol)
+  row.appendChild(historyPanel)
+  content.appendChild(row)
 
   const cancelBtn = hc('button', 'editor-btn', 'editor-btn-cancel')
   cancelBtn.type = 'button'
@@ -333,6 +434,9 @@ export function openEditor({
   quickFns = [],
   format = 'json',
   drawer = false,
+  // Pass a key (e.g. 'js') to show the recent-history sidebar and record saved
+  // snippets under it. Omitted for the storage editor, which stays single-column.
+  history = '',
   onSave: save,
   onCancel: cancel,
 } = {}) {
@@ -341,6 +445,9 @@ export function openEditor({
   // The real `luna-modal` class is added by LunaModal's constructor; toggling
   // our prefixed drawer class on the same host turns it into a top drawer.
   host.classList.toggle(DRAWER_CLASS, drawer)
+  historyKey = history || ''
+  historyPanel.style.display = history ? '' : 'none'
+  if (history) renderHistory()
 
   formatMode = format
   onSave = save || null

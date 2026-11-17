@@ -318,6 +318,7 @@ export default class Console extends Tool {
       quickFns: JS_QUICK_FNS,
       format: 'code',
       drawer: true,
+      history: 'js',
       onSave: (val) => {
         const jsInput = val.trim()
         if (jsInput === '') return

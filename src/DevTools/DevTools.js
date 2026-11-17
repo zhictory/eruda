@@ -66,6 +66,7 @@ export default class DevTools extends Emitter {
   show() {
     this._isShow = true
 
+    if (!this._inline) this._$mask.css('display', 'block')
     this._$el.show()
     this._tab.updateSlider()
 
@@ -86,6 +87,7 @@ export default class DevTools extends Emitter {
     this._isShow = false
     this.emit('hide')
 
+    this._$mask.css('display', 'none')
     this._$el.css({ opacity: 0 })
     setTimeout(() => this._$el.hide(), 300)
 
@@ -300,6 +302,7 @@ export default class DevTools extends Emitter {
 
     $container.append(
       c(`
+      <div class="mask"></div>
       <div class="dev-tools">
         <div class="resizer"></div>
         <div class="tab"></div>
@@ -310,6 +313,10 @@ export default class DevTools extends Emitter {
       `)
     )
 
+    // A dimming backdrop shown whenever the tool panel is visible. It sits as
+    // a sibling of .dev-tools so it can cover the full viewport behind the
+    // panel (which itself only occupies the bottom part of the screen).
+    this._$mask = $container.find(c('.mask'))
     this._$el = $container.find(c('.dev-tools'))
     this._$tools = this._$el.find(c('.tools'))
   }

@@ -45,6 +45,19 @@
   .section.danger .data-grid {
     border-color: var(--console-error-border);
   }
+  // Base luna-data-grid is 12px / 20px rows. Bump the stored key-value cells
+  // one size up for readability (14px body text and taller rows).
+  .data-grid {
+    font-size: $font-size;
+    td {
+      height: 28px;
+      line-height: 28px;
+    }
+    th {
+      height: 28px;
+      line-height: 28px;
+    }
+  }
   .link-list,
   .image-list {
     border: 1px solid var(--border);

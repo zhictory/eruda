@@ -39,6 +39,68 @@
   display: flex;
   flex-direction: column;
 }
+// The editor and the recent-history list sit side by side. The history column
+// is capped so the textarea always keeps the majority of the width, including
+// on wide desktops where it would otherwise grow unbounded.
+.editor-row {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+.editor-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.editor-history {
+  flex: 0 0 auto;
+  // Upper bound on the sidebar so the editor never gets squeezed; on narrow
+  // phones it shrinks to a smaller share via the max-width percentage.
+  width: 32%;
+  max-width: 280px;
+  min-width: 96px;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+}
+.editor-history-title {
+  color: var(--foreground);
+  opacity: 0.65;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.editor-history-list {
+  flex: 1 1 auto;
+  max-height: 42vh;
+  overflow-y: auto;
+}
+.editor-history-empty {
+  color: var(--foreground);
+  opacity: 0.5;
+  font-size: 12px;
+  padding: 6px 0;
+}
+.editor-history-item {
+  color: var(--foreground);
+  font-family: 'Cascadia Code', 'Cascadia Mono', Consolas, 'Courier New',
+    monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  &:active {
+    background: var(--highlight);
+    color: var(--select-foreground);
+  }
+}
 .editor-hint {
   color: var(--foreground);
   opacity: 0.65;
