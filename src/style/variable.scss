@@ -4,8 +4,12 @@ $font-size: 14px;
 $font-size-s: 12px;
 $font-size-l: 16px;
 
-$font-family: -apple-system, system-ui, BlinkMacSystemFont,
-  '.SFNSDisplay-Regular', 'Helvetica Neue', 'Lucida Grande', 'Segoe UI', Tahoma,
-  sans-serif;
+// Cascadia Code is injected once into document.head (src/lib/cascadiaFont.js),
+// so it is available offline via local() and via the CDN fallback. Put it
+// first so the whole eruda panel uses one consistent (monospaced) face; the
+// system stack stays as the fallback while the webfont loads / if it fails.
+$font-family: 'Cascadia Code', 'Cascadia Mono', -apple-system, system-ui,
+  BlinkMacSystemFont, '.SFNSDisplay-Regular', 'Helvetica Neue', 'Lucida Grande',
+  'Segoe UI', Tahoma, sans-serif;
 
 $anim-duration: 0.3s;

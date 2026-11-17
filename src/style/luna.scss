@@ -1,6 +1,25 @@
 @use './variable' as *;
 
 .container {
+  // The luna components each hardcode their own font-family stack. Override
+  // them all with the panel-wide $font-family (Cascadia Code first) so the
+  // whole UI uses one face. Icon fonts are declared with !important inside
+  // luna-*.css (e.g. luna-console-icon), so they are unaffected by these.
+  .luna-console,
+  .luna-console-log-item .luna-console-code,
+  .luna-object-viewer,
+  .luna-dom-viewer,
+  .luna-text-viewer,
+  .luna-text-viewer-text,
+  .luna-data-grid,
+  .luna-modal,
+  .luna-setting,
+  .luna-tab,
+  .luna-notification,
+  .luna-box-model {
+    font-family: $font-family;
+  }
+
   .luna-console {
     background: var(--background);
   }
