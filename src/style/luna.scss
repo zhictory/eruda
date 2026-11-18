@@ -88,10 +88,10 @@
         color: var(--foreground);
       }
       .luna-console-icon-error {
-        color: #ef3842;
+        color: var(--console-error-foreground);
       }
       .luna-console-icon-warn {
-        color: #e8a400;
+        color: var(--console-warn-foreground);
       }
     }
     .luna-console-count {

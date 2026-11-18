@@ -93,6 +93,42 @@ export function isDarkTheme(theme) {
 
 // prettier-ignore
 export default {
+  // Looseleaf — paper-and-pencil palette adapted from whistle's looseleaf skin
+  // (see DESIGN.md). Warm paper surfaces, pencil-grey borders, marker-orange
+  // accent and lemon-highlighted rows; no pure white.
+  Looseleaf: createLightTheme({
+    background: '#fbf6e9', // paper panel
+    foreground: '#2a2420', // primary ink
+    selectForeground: '#2a2420', // ink on lemon highlight
+    accent: '#df6b3c', // marker orange (primary / active)
+    highlight: '#f7ecc4', // lemon highlighter rows
+    border: '#8e887f', // pencil border
+    primary: '#2a2420', // heavy ink
+    contrast: '#f8f5ee', // muted paper (alternate rows)
+    darkerBackground: '#ece6da', // sand (toolbar / secondary)
+    // Syntax ink: marker/sage/warning family, still legible on paper.
+    varColor: '#b34f24', // deep orange
+    stringColor: '#3b7a4b', // success green ink
+    keywordColor: '#b34f24', // deep orange marker
+    numberColor: '#a4502a', // warning orange-brown
+    operatorColor: '#6b6259', // muted ink
+    linkColor: '#2c4f9e', // looseleaf link blue
+    textColor: '#4a423b', // soft ink
+    tagNameColor: '#b34f24', // deep orange
+    functionColor: '#2a2420', // primary ink
+    attributeNameColor: '#a4502a', // warning orange
+    commentColor: '#7fa37c', // sage ink
+    cssProperty: '#2c4f9e',
+    // Status surfaces
+    consoleWarnBackground: '#fbf0d5',
+    consoleWarnForeground: '#a4502a',
+    consoleWarnBorder: '#f7ecc4',
+    consoleErrorBackground: '#f7e0d9',
+    consoleErrorForeground: '#c2412d',
+    consoleErrorBorder: '#f0cdc3',
+    light: '#fbf6e9',
+    dark: '#ece6da',
+  }),
   Light: createLightTheme({
     darkerBackground: '#f3f3f3',
     background: '#fff',
