@@ -34,8 +34,10 @@ $js-input-height: 40px;
       line-height: 20px;
       transition: background-color $anim-duration, color $anim-duration;
       &.active {
-        background: var(--highlight);
-        color: var(--select-foreground);
+        // Active level filter (All / Info / Warning / Error) uses the same
+        // marker-orange primary colour as console/tab selection.
+        background: var(--accent);
+        color: #fff;
       }
     }
     .filter-text {

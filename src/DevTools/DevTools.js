@@ -318,6 +318,11 @@ export default class DevTools extends Emitter {
     // panel (which itself only occupies the bottom part of the screen).
     this._$mask = $container.find(c('.mask'))
     this._$el = $container.find(c('.dev-tools'))
+
+    // Tapping the dimming backdrop closes the tool panel, like tapping outside
+    // a modal. The container itself stops click propagation in _bindEvent, so
+    // bind the handler directly on the mask element.
+    this._$mask.on('click', () => this.hide())
     this._$tools = this._$el.find(c('.tools'))
   }
   _initTab() {

@@ -73,7 +73,7 @@
         // selection is obvious. Syntax spans inherit the ink foreground to
         // stay readable on the accent background.
         background: var(--accent);
-        color: var(--select-foreground);
+        color: #fff;
         .luna-console-code,
         .luna-console-log-content {
           .luna-console-key,
@@ -379,7 +379,7 @@
       // Selected tab uses the marker-orange primary colour to match the
       // console selection; hover stays the softer lemon highlight.
       background: var(--accent);
-      color: var(--select-foreground);
+      color: #fff;
     }
     &:hover {
       background: var(--highlight);

@@ -17,7 +17,10 @@
   .luna-modal-body {
     // render() sets an inline width, so this needs !important to win.
     width: 100% !important;
-    max-height: 60%;
+    // The textarea auto-sizes to its content (capped by its own max-height),
+    // so let the drawer grow to fit and keep scrolling inside the textarea
+    // rather than making the whole popup scroll.
+    max-height: none;
     margin-top: 0;
     border-radius: 0 0 8px 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
@@ -182,12 +185,14 @@
   display: block;
   width: 100%;
   min-height: 120px;
-  height: 38vh;
+  // Height is driven by autoResizeTextarea() to fit the content. Past this
+  // cap the textarea scrolls internally, so the popup body never scrolls.
+  max-height: 60vh;
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 4px;
   outline: none;
-  resize: vertical;
+  resize: none;
   overflow: auto;
   box-sizing: border-box;
   color: var(--foreground);

@@ -75,11 +75,21 @@ function toggleSelectMenu() {
   selectMenu.classList.toggle(c('editor-select-menu-open'), selectOpen)
 }
 
+// Grow the textarea to fit its content so the drawer never needs its own
+// scrollbar for short/medium snippets. Past a comfortable cap the textarea
+// itself scrolls (see .editor-textarea max-height) instead of the modal body.
+function autoResizeTextarea() {
+  if (!textarea) return
+  textarea.style.height = 'auto'
+  textarea.style.height = textarea.scrollHeight + 'px'
+}
+
 function insert(text) {
   const start = textarea.selectionStart
   const end = textarea.selectionEnd
   const val = textarea.value
   textarea.value = val.slice(0, start) + text + val.slice(end)
+  autoResizeTextarea()
   const pos = start + text.length
   textarea.focus()
   textarea.setSelectionRange(pos, pos)
@@ -167,6 +177,7 @@ function insertQuickFn(fn) {
   const end = textarea.selectionEnd
   const val = textarea.value
   textarea.value = val.slice(0, start) + clean + val.slice(end)
+  autoResizeTextarea()
   const caret = start + (at === -1 ? clean.length : at)
   textarea.focus()
   textarea.setSelectionRange(caret, caret)
@@ -377,6 +388,7 @@ function ensure(container) {
   formatBtn.textContent = 'Format'
   formatBtn.addEventListener('click', () => {
     textarea.value = formatCode(textarea.value)
+    autoResizeTextarea()
     textarea.focus()
   })
 
@@ -396,6 +408,8 @@ function ensure(container) {
     width: window.innerWidth,
     showClose: false,
   })
+
+  textarea.addEventListener('input', autoResizeTextarea)
 
   textarea.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
@@ -453,6 +467,7 @@ export function openEditor({
   onSave = save || null
   onCancel = cancel || null
   textarea.value = value
+  autoResizeTextarea()
   textarea.setAttribute('placeholder', placeholder)
   hintEl.textContent = hint
   hintEl.style.display = hint ? '' : 'none'
