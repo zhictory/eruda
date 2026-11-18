@@ -330,7 +330,7 @@ function ensure(container) {
   // whose typography and spacing we fully control with CSS.
   selectBox = hc('div', 'editor-select')
   selectTrigger = hc('div', 'editor-select-trigger')
-  selectTrigger.textContent = 'Insert helper…'
+  selectTrigger.textContent = 'Insert helper'
   selectTrigger.setAttribute('role', 'button')
   selectTrigger.setAttribute('tabindex', '0')
   selectMenu = hc('div', 'editor-select-menu')
@@ -373,38 +373,41 @@ function ensure(container) {
   historyPanel.appendChild(historyTitle)
   historyPanel.appendChild(historyList)
 
+  // Compact icon toolbar pinned to the top-right of the popup instead of a
+  // full-width text footer. Icons come from eruda's own icon font (c() adds the
+  // eruda- prefix that evalCss gives the icon.css selectors); a title attribute
+  // keeps the action discoverable on hover / long-press.
+  const makeIconBtn = (iconCls, title, onClick, primary) => {
+    const btn = hc('button', 'editor-icon-btn')
+    if (primary) btn.classList.add(c('editor-icon-btn-primary'))
+    btn.type = 'button'
+    btn.title = title
+    btn.appendChild(hc('span', iconCls))
+    btn.addEventListener('click', onClick)
+    return btn
+  }
+  const cancelBtn = makeIconBtn('icon-clear', 'Cancel', () => hide(false, true))
+  const formatBtn = makeIconBtn('icon-tool', 'Format', () => {
+    textarea.value = formatCode(textarea.value)
+    autoResizeTextarea()
+    textarea.focus()
+  })
+  saveBtn = makeIconBtn('icon-play', 'Run', () => hide(true, false), true)
+
+  const toolbar = hc('div', 'editor-toolbar')
+  toolbar.appendChild(cancelBtn)
+  toolbar.appendChild(formatBtn)
+  toolbar.appendChild(saveBtn)
+  content.appendChild(toolbar)
+
   const row = hc('div', 'editor-row')
   row.appendChild(mainCol)
   row.appendChild(historyPanel)
   content.appendChild(row)
 
-  const cancelBtn = hc('button', 'editor-btn', 'editor-btn-cancel')
-  cancelBtn.type = 'button'
-  cancelBtn.textContent = 'Cancel'
-  cancelBtn.addEventListener('click', () => hide(false, true))
-
-  const formatBtn = hc('button', 'editor-btn', 'editor-btn-format')
-  formatBtn.type = 'button'
-  formatBtn.textContent = 'Format'
-  formatBtn.addEventListener('click', () => {
-    textarea.value = formatCode(textarea.value)
-    autoResizeTextarea()
-    textarea.focus()
-  })
-
-  saveBtn = hc('button', 'editor-btn', 'editor-btn-primary')
-  saveBtn.type = 'button'
-  saveBtn.addEventListener('click', () => hide(true, false))
-
-  const footer = hc('div', 'editor-footer')
-  footer.appendChild(cancelBtn)
-  footer.appendChild(formatBtn)
-  footer.appendChild(saveBtn)
-
   modal = new LunaModal(host, {
     title: '',
     content,
-    footer,
     width: window.innerWidth,
     showClose: false,
   })
@@ -471,7 +474,8 @@ export function openEditor({
   textarea.setAttribute('placeholder', placeholder)
   hintEl.textContent = hint
   hintEl.style.display = hint ? '' : 'none'
-  saveBtn.textContent = saveText
+  // The save button is now icon-only; expose the caller's label via title.
+  saveBtn.title = saveText
 
   selectMenu.textContent = ''
   quickFnList = []
