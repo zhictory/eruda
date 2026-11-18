@@ -29,6 +29,7 @@ import isEqual from 'licia/isEqual'
 import extend from 'licia/extend'
 import evalCss from './lib/evalCss'
 import cascadiaFont from './lib/cascadiaFont'
+import loadCangjieFont from './lib/cangjieFont'
 import chobitsu from './lib/chobitsu'
 
 export default {
@@ -205,6 +206,9 @@ export default {
     // too. Inject it once, regardless of the useShadowDom option. No `px`,
     // `_` or `var(--x)` in here, so evalCss's resetStyle leaves it untouched.
     evalCss(cascadiaFont, document.head)
+    // 仓耳今楷01 W03: local() face is declared here; the bundled woff2 subset
+    // is fetched as a blob URL at runtime (see lib/cangjieFont.js).
+    loadCangjieFont()
 
     let shadowRoot
     let el
