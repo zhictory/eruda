@@ -69,9 +69,30 @@
   .luna-console-log-container {
     &.luna-console-selected {
       .luna-console-log-item {
-        background: var(--contrast);
+        // Selected log rows use the marker-orange primary colour so the
+        // selection is obvious. Syntax spans inherit the ink foreground to
+        // stay readable on the accent background.
+        background: var(--accent);
+        color: var(--select-foreground);
+        .luna-console-code,
+        .luna-console-log-content {
+          .luna-console-key,
+          .luna-console-number,
+          .luna-console-null,
+          .luna-console-string,
+          .luna-console-boolean,
+          .luna-console-special,
+          .luna-console-keyword,
+          .luna-console-operator,
+          .luna-console-comment,
+          .luna-console-symbol,
+          .luna-console-regexp,
+          .luna-console-undefined {
+            color: inherit;
+          }
+        }
         &:not(.luna-console-error):not(.luna-console-warn) {
-          border-color: var(--border);
+          border-color: var(--accent);
         }
       }
     }
@@ -354,7 +375,12 @@
   }
 
   .luna-tab-item {
-    &.luna-tab-selected,
+    &.luna-tab-selected {
+      // Selected tab uses the marker-orange primary colour to match the
+      // console selection; hover stays the softer lemon highlight.
+      background: var(--accent);
+      color: var(--select-foreground);
+    }
     &:hover {
       background: var(--highlight);
       color: var(--select-foreground);
