@@ -65,6 +65,26 @@ function hc(tag, ...classes) {
   return h(tag + classes.map((cls) => c('.' + cls)).join(''))
 }
 
+// Inline SVG icons. eruda's own icon font has no dedicated close / folder
+// glyphs, and a text glyph could be mangled by a non-UTF-8 host page, so these
+// are drawn as paths. currentColor makes them follow the button's colour.
+function svgIcon(path) {
+  const ns = 'http://www.w3.org/2000/svg'
+  const svg = document.createElementNS(ns, 'svg')
+  svg.setAttribute('viewBox', '0 0 24 24')
+  svg.setAttribute('width', '16')
+  svg.setAttribute('height', '16')
+  svg.setAttribute('fill', 'none')
+  svg.setAttribute('stroke', 'currentColor')
+  svg.setAttribute('stroke-width', '2')
+  svg.setAttribute('stroke-linecap', 'round')
+  svg.setAttribute('stroke-linejoin', 'round')
+  const p = document.createElementNS(ns, 'path')
+  p.setAttribute('d', path)
+  svg.appendChild(p)
+  return svg
+}
+
 function closeSelectMenu() {
   selectOpen = false
   if (selectMenu) selectMenu.classList.remove(c('editor-select-menu-open'))
@@ -363,7 +383,6 @@ function ensure(container) {
   // single column (openEditor toggles the panel via EDITOR_HISTORY_CLASS).
   const mainCol = hc('div', 'editor-main')
   mainCol.appendChild(hintEl)
-  mainCol.appendChild(selectBox)
   mainCol.appendChild(textarea)
 
   historyPanel = hc('div', 'editor-history')
@@ -373,31 +392,54 @@ function ensure(container) {
   historyPanel.appendChild(historyTitle)
   historyPanel.appendChild(historyList)
 
-  // Compact icon toolbar pinned to the top-right of the popup instead of a
-  // full-width text footer. Icons come from eruda's own icon font (c() adds the
-  // eruda- prefix that evalCss gives the icon.css selectors); a title attribute
-  // keeps the action discoverable on hover / long-press.
-  const makeIconBtn = (iconCls, title, onClick, primary) => {
+  // Icon toolbar pinned to the top of the popup. A single close button sits at
+  // the far right; the helper dropdown plus Format / Run are grouped at the
+  // left of the same row, so they sit next to the dropdown trigger. Icons use
+  // inline SVG (close / folder) or eruda's own icon font (play) to avoid any
+  // host-page encoding problems; a title keeps them discoverable.
+  const makeIconBtn = (title, onClick, primary, icon) => {
     const btn = hc('button', 'editor-icon-btn')
     if (primary) btn.classList.add(c('editor-icon-btn-primary'))
     btn.type = 'button'
     btn.title = title
-    btn.appendChild(hc('span', iconCls))
+    if (typeof icon === 'string') btn.appendChild(hc('span', icon))
+    else btn.appendChild(icon)
     btn.addEventListener('click', onClick)
     return btn
   }
-  const cancelBtn = makeIconBtn('icon-clear', 'Cancel', () => hide(false, true))
-  const formatBtn = makeIconBtn('icon-tool', 'Format', () => {
-    textarea.value = formatCode(textarea.value)
-    autoResizeTextarea()
-    textarea.focus()
-  })
-  saveBtn = makeIconBtn('icon-play', 'Run', () => hide(true, false), true)
+  const closeBtn = makeIconBtn(
+    'Close',
+    () => hide(false, true),
+    false,
+    svgIcon('M18 6 6 18M6 6l12 12')
+  )
+  const formatBtn = makeIconBtn(
+    'Format',
+    () => {
+      textarea.value = formatCode(textarea.value)
+      autoResizeTextarea()
+      textarea.focus()
+    },
+    false,
+    svgIcon(
+      'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z'
+    )
+  )
+  saveBtn = makeIconBtn(
+    'Run',
+    () => hide(true, false),
+    true,
+    svgIcon('M8 5v14l11-7z')
+  )
+
+  const actions = hc('div', 'editor-actions')
+  actions.appendChild(selectBox)
+  actions.appendChild(formatBtn)
+  actions.appendChild(saveBtn)
 
   const toolbar = hc('div', 'editor-toolbar')
-  toolbar.appendChild(cancelBtn)
-  toolbar.appendChild(formatBtn)
-  toolbar.appendChild(saveBtn)
+  toolbar.appendChild(actions)
+  toolbar.appendChild(closeBtn)
   content.appendChild(toolbar)
 
   const row = hc('div', 'editor-row')
@@ -438,6 +480,9 @@ function ensure(container) {
   // Tapping outside the dropdown closes it (the modal content, footer, etc.).
   host.addEventListener('click', (e) => {
     if (selectOpen && !selectBox.contains(e.target)) closeSelectMenu()
+    // The host is the .luna-modal overlay itself; a click whose target is the
+    // host (not the .luna-modal-body) is a backdrop click -> close the editor.
+    if (e.target === host && onCancel) hide(false, true)
   })
 }
 

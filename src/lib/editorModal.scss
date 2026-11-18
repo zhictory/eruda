@@ -42,21 +42,27 @@
   display: flex;
   flex-direction: column;
 }
-// Icon-only action toolbar pinned to the top-right of the popup. Using eruda's
-// own icon font means no text glyphs (which could be mangled by a non-UTF-8 host
-// page) and a much smaller footprint than the old text footer.
+// Top action bar: the helper dropdown + Format / Run sit together on the left,
+// a lone close button is pinned to the right.
 .editor-toolbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  user-select: none;
+}
+.editor-actions {
+  display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 8px;
-  user-select: none;
+  min-width: 0;
 }
 .editor-icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   width: 30px;
   height: 30px;
   padding: 0;
@@ -67,6 +73,11 @@
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
+  svg {
+    display: block;
+    width: 16px;
+    height: 16px;
+  }
   &:active {
     background: var(--highlight);
     color: var(--select-foreground);
@@ -156,9 +167,9 @@
 // gap to the textarea apply everywhere.
 .editor-select {
   position: relative;
-  width: 100%;
-  // A clear gap between the helper dropdown and the textarea below it.
-  margin-bottom: 12px;
+  // Sized to the trigger only; the dropdown sits in the toolbar next to the
+  // Format / Run buttons instead of taking a full row above the textarea.
+  flex: 0 0 auto;
   // Use a plain system stack rather than inheriting the embedded Cascadia /
   // 仓耳 fonts. Those Latin/punctuation subsets can substitute odd glyphs for
   // the helper labels on desktop browsers, which looks like mojibake.
@@ -168,7 +179,7 @@
   user-select: none;
 }
 .editor-select-trigger {
-  padding: 0 8px;
+  padding: 0 26px 0 10px;
   height: 30px;
   line-height: 30px;
   border: 1px solid var(--border);
@@ -181,7 +192,7 @@
   &::after {
     content: '';
     position: absolute;
-    right: 12px;
+    right: 10px;
     top: 11px;
     width: 6px;
     height: 6px;
@@ -197,15 +208,20 @@
 }
 .editor-select-menu {
   display: none;
-  // In-flow (not absolute) so it is never clipped by the modal's scroll box
-  // and needs no z-index / overflow workaround on iOS WKWebView.
-  width: 100%;
+  // Absolutely positioned beneath the trigger so opening it never pushes the
+  // textarea down. The parent .editor-select is the positioning context.
+  position: absolute;
+  left: 0;
+  top: 100%;
+  z-index: 10;
+  min-width: 100%;
   max-height: 40vh;
   overflow-y: auto;
   margin-top: 4px;
   border: 1px solid var(--border);
   border-radius: 4px;
   background: var(--background);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
 }
 .editor-select-menu-open {
@@ -226,10 +242,10 @@
 .editor-textarea {
   display: block;
   width: 100%;
-  min-height: 240px;
+  min-height: 320px;
   // Height is driven by autoResizeTextarea() to fit the content. Past this
   // cap the textarea scrolls internally, so the popup body never scrolls.
-  max-height: 60vh;
+  max-height: 72vh;
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: 4px;
