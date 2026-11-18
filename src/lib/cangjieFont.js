@@ -1,4 +1,4 @@
-// 仓耳今楷01 W03 (TsangerJinKai01 W03) Chinese web font loader.
+// 仓耳今楷01 W04 (TsangerJinKai01 W04) Chinese web font loader.
 //
 // The font is licensed, so it is shipped as a small self-hosted WOFF2 subset
 // (GB2312 common hanzi + ASCII + punctuation, ~1.9MB) embedded as a base64 data
@@ -26,8 +26,8 @@ export default function loadCangjieFont() {
   if (!head) return
 
   const face =
-    "@font-face{font-family:'CangErJinKai01 W03';font-style:normal;font-weight:400;font-display:swap;" +
-    "src:local('仓耳今楷01 W03'),local('TsangerJinKai01 W03'),local('仓耳今楷01'),local('CangErJinKai01 W03')," +
+    "@font-face{font-family:'CangErJinKai01 W04';font-style:normal;font-weight:400;font-display:swap;" +
+    "src:local('仓耳今楷01 W04'),local('TsangerJinKai01 W04'),local('仓耳今楷01'),local('CangErJinKai01 W04')," +
     'url(data:font/woff2;base64,' +
     cangjieData +
     ") format('woff2')}"

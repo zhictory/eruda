@@ -8,8 +8,8 @@ $font-size-l: 16px;
 // so it is available offline via local() and via the CDN fallback. Put it
 // first so the whole eruda panel uses one consistent (monospaced) face; the
 // system stack stays as the fallback while the webfont loads / if it fails.
-$font-family: 'Cascadia Code', 'Cascadia Mono', 'CangErJinKai01 W03',
-  '仓耳今楷01 W03', -apple-system, system-ui,
+$font-family: 'Cascadia Code', 'Cascadia Mono', 'CangErJinKai01 W04',
+  '仓耳今楷01 W04', -apple-system, system-ui,
   BlinkMacSystemFont, '.SFNSDisplay-Regular', 'Helvetica Neue', 'Lucida Grande',
   'Segoe UI', Tahoma, sans-serif;
 

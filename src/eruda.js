@@ -206,8 +206,8 @@ export default {
     // too. Inject it once, regardless of the useShadowDom option. No `px`,
     // `_` or `var(--x)` in here, so evalCss's resetStyle leaves it untouched.
     evalCss(cascadiaFont, document.head)
-    // 仓耳今楷01 W03: local() face is declared here; the bundled woff2 subset
-    // is fetched as a blob URL at runtime (see lib/cangjieFont.js).
+    // 仓耳今楷01 W04: local() face plus embedded woff2 subset are injected
+    // by lib/cangjieFont.js (direct DOM, so resetStyle leaves the base64 alone).
     loadCangjieFont()
 
     let shadowRoot
