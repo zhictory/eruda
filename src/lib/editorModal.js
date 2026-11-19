@@ -4,32 +4,8 @@ import each from 'licia/each'
 import evalCss from './evalCss'
 import { classPrefix as c } from './util'
 
-// Marker is removed on insert and the caret is placed where it was.
-const MARKER = '¦'
 const DRAWER_CLASS = c('editor-drawer')
 const DRAWER_OPEN_CLASS = c('editor-drawer-open')
-
-// Only helpers that are available in the page's global scope (logger.evaluate
-// uses eval in that scope). DevTools-only shortcuts such as $0 / copy() are
-// intentionally left out because they would throw at runtime.
-export const JS_QUICK_FNS = [
-  { label: 'log()', code: 'console.log(¦)' },
-  { label: 'dir()', code: 'console.dir(¦)' },
-  { label: 'table()', code: 'console.table(¦)' },
-  { label: 'stringify()', code: 'JSON.stringify(¦, null, 2)' },
-  { label: 'parse()', code: 'JSON.parse(¦)' },
-  { label: 'keys()', code: 'Object.keys(¦)' },
-  { label: 'values()', code: 'Object.values(¦)' },
-  { label: 'entries()', code: 'Object.entries(¦)' },
-  { label: 'query()', code: 'document.querySelector(¦)' },
-  { label: 'queryAll()', code: 'document.querySelectorAll(¦)' },
-  { label: 'location', code: 'location.href' },
-  { label: 'reload()', code: 'location.reload()' },
-  { label: 'storage', code: 'Object.entries(localStorage)' },
-  { label: 'cookies', code: 'document.cookie' },
-  { label: 'now()', code: 'performance.now()' },
-  { label: 'typeof', code: 'typeof ¦' },
-]
 
 // The modal must live inside the eruda container so that the styles injected
 // by evalCss (which may be inside a shadow root) still apply to it.
@@ -41,11 +17,6 @@ let host = null
 let modal = null
 let content = null
 let textarea = null
-let selectBox = null
-let selectTrigger = null
-let selectMenu = null
-let selectOpen = false
-let quickFnList = []
 let hintEl = null
 let saveBtn = null
 // Recent executed snippets, shown in a right-hand sidebar of the console editor.
@@ -65,9 +36,9 @@ function hc(tag, ...classes) {
   return h(tag + classes.map((cls) => c('.' + cls)).join(''))
 }
 
-// Inline SVG icons. eruda's own icon font has no dedicated close / folder
-// glyphs, and a text glyph could be mangled by a non-UTF-8 host page, so these
-// are drawn as paths. currentColor makes them follow the button's colour.
+// Inline SVG icons. A text glyph could be mangled by a non-UTF-8 host page,
+// so these are drawn as paths. currentColor makes them follow the button's
+// colour.
 function svgIcon(path) {
   const ns = 'http://www.w3.org/2000/svg'
   const svg = document.createElementNS(ns, 'svg')
@@ -83,16 +54,6 @@ function svgIcon(path) {
   p.setAttribute('d', path)
   svg.appendChild(p)
   return svg
-}
-
-function closeSelectMenu() {
-  selectOpen = false
-  if (selectMenu) selectMenu.classList.remove(c('editor-select-menu-open'))
-}
-
-function toggleSelectMenu() {
-  selectOpen = !selectOpen
-  selectMenu.classList.toggle(c('editor-select-menu-open'), selectOpen)
 }
 
 // Grow the textarea to fit its content so the drawer never needs its own
@@ -188,19 +149,6 @@ function renderHistory() {
     })
     historyList.appendChild(item)
   })
-}
-
-function insertQuickFn(fn) {
-  const at = fn.code.indexOf(MARKER)
-  const clean = at === -1 ? fn.code : fn.code.replace(MARKER, '')
-  const start = textarea.selectionStart
-  const end = textarea.selectionEnd
-  const val = textarea.value
-  textarea.value = val.slice(0, start) + clean + val.slice(end)
-  autoResizeTextarea()
-  const caret = start + (at === -1 ? clean.length : at)
-  textarea.focus()
-  textarea.setSelectionRange(caret, caret)
 }
 
 function formatCode(text) {
@@ -344,34 +292,6 @@ function ensure(container) {
   content = hc('div', 'editor-modal')
   hintEl = hc('div', 'editor-hint')
 
-  // A native <select> renders its option list with the OS widget on iOS
-  // WKWebView, where font-size / color / spacing on <option> are ignored.
-  // Build a plain DOM dropdown instead so the helper names are real elements
-  // whose typography and spacing we fully control with CSS.
-  selectBox = hc('div', 'editor-select')
-  selectTrigger = hc('div', 'editor-select-trigger')
-  selectTrigger.textContent = 'Insert helper'
-  selectTrigger.setAttribute('role', 'button')
-  selectTrigger.setAttribute('tabindex', '0')
-  selectMenu = hc('div', 'editor-select-menu')
-  selectTrigger.addEventListener('click', (e) => {
-    e.stopPropagation()
-    toggleSelectMenu()
-  })
-  selectTrigger.addEventListener('keydown', (e) => {
-    if (
-      e.key === 'Enter' ||
-      e.key === ' ' ||
-      e.key === 'ArrowDown' ||
-      e.key === 'ArrowUp'
-    ) {
-      e.preventDefault()
-      toggleSelectMenu()
-    }
-  })
-  selectBox.appendChild(selectTrigger)
-  selectBox.appendChild(selectMenu)
-
   textarea = hc('textarea', 'editor-textarea')
   textarea.setAttribute('spellcheck', 'false')
   textarea.setAttribute('autocapitalize', 'off')
@@ -392,10 +312,8 @@ function ensure(container) {
   historyPanel.appendChild(historyTitle)
   historyPanel.appendChild(historyList)
 
-  // Icon toolbar pinned to the top of the popup. A single close button sits at
-  // the far right; the helper dropdown plus Format / Run are grouped at the
-  // left of the same row, so they sit next to the dropdown trigger. Icons use
-  // inline SVG (close / folder) or eruda's own icon font (play) to avoid any
+  // Icon toolbar pinned to the top of the popup. Format / Run sit on the left
+  // and a single close button on the right. Icons use inline SVG to avoid any
   // host-page encoding problems; a title keeps them discoverable.
   const makeIconBtn = (title, onClick, primary, icon) => {
     const btn = hc('button', 'editor-icon-btn')
@@ -421,9 +339,8 @@ function ensure(container) {
       textarea.focus()
     },
     false,
-    svgIcon(
-      'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z'
-    )
+    // Text-alignment lines read as "format / pretty print" at a glance.
+    svgIcon('M4 6h16M4 10h11M4 14h16M4 18h11')
   )
   saveBtn = makeIconBtn(
     'Run',
@@ -433,7 +350,6 @@ function ensure(container) {
   )
 
   const actions = hc('div', 'editor-actions')
-  actions.appendChild(selectBox)
   actions.appendChild(formatBtn)
   actions.appendChild(saveBtn)
 
@@ -469,19 +385,13 @@ function ensure(container) {
   host.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       e.preventDefault()
-      if (selectOpen) {
-        closeSelectMenu()
-        return
-      }
       hide(false, true)
     }
   })
 
-  // Tapping outside the dropdown closes it (the modal content, footer, etc.).
+  // The host is the .luna-modal overlay itself; a click whose target is the
+  // host (not the .luna-modal-body) is a backdrop click -> close the editor.
   host.addEventListener('click', (e) => {
-    if (selectOpen && !selectBox.contains(e.target)) closeSelectMenu()
-    // The host is the .luna-modal overlay itself; a click whose target is the
-    // host (not the .luna-modal-body) is a backdrop click -> close the editor.
     if (e.target === host && onCancel) hide(false, true)
   })
 }
@@ -493,7 +403,6 @@ export function openEditor({
   placeholder = '',
   saveText = 'Save',
   hint = '',
-  quickFns = [],
   format = 'json',
   drawer = false,
   // Pass a key (e.g. 'js') to show the recent-history sidebar and record saved
@@ -521,33 +430,6 @@ export function openEditor({
   hintEl.style.display = hint ? '' : 'none'
   // The save button is now icon-only; expose the caller's label via title.
   saveBtn.title = saveText
-
-  selectMenu.textContent = ''
-  quickFnList = []
-  closeSelectMenu()
-  if (quickFns.length) {
-    each(quickFns, (fn) => {
-      const opt = hc('div', 'editor-select-option')
-      opt.textContent = fn.label
-      opt.setAttribute('role', 'option')
-      opt.setAttribute('tabindex', '0')
-      opt.addEventListener('click', (e) => {
-        e.stopPropagation()
-        insertQuickFn(fn)
-        closeSelectMenu()
-      })
-      opt.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          insertQuickFn(fn)
-          closeSelectMenu()
-        }
-      })
-      selectMenu.appendChild(opt)
-      quickFnList.push(fn)
-    })
-  }
-  selectBox.style.display = quickFns.length ? '' : 'none'
 
   modal.setOption('title', title)
   modal.setOption(

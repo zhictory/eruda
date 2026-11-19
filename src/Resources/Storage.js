@@ -183,7 +183,6 @@ export default class Storage {
       value: this._getVal(key) || '',
       saveText: 'Save',
       hint: 'Edit the value, then press Save or Ctrl/Cmd + Enter.',
-      quickFns: [],
       format: 'json',
       drawer: true,
       onSave: (val) => {

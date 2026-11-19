@@ -18,7 +18,7 @@ import evalCss from '../lib/evalCss'
 import Settings from '../Settings/Settings'
 import LunaConsole from 'luna-console'
 import LunaModal from 'luna-modal'
-import { openEditor, getEditorContainer, JS_QUICK_FNS } from '../lib/editorModal'
+import { openEditor, getEditorContainer } from '../lib/editorModal'
 import { classPrefix as c } from '../lib/util'
 
 uncaught.start()
@@ -314,8 +314,7 @@ export default class Console extends Tool {
       value: this._jsInput,
       placeholder: 'Enter JavaScript, then press Run',
       saveText: 'Run',
-      hint: 'Tap a helper to insert it. Format = pretty print. Ctrl/Cmd + Enter = Run.',
-      quickFns: JS_QUICK_FNS,
+      hint: 'Format = pretty print. Ctrl/Cmd + Enter = Run.',
       format: 'code',
       drawer: true,
       history: 'js',
